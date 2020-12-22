@@ -2,10 +2,6 @@ from typing import List
 
 from pydantic import validate_arguments
 
-__pdoc__ = {
-    "func_4": False,
-}
-
 
 @validate_arguments
 def func_1(arg1: int, arg2: str) -> List[str]:
@@ -102,5 +98,5 @@ def func_3(arg1: int, arg2: str) -> List[str]:
     pass
 
 
-def func_4(arg1: int, arg2: str) -> List[str]:
+def _func_4(arg1: int, arg2: str) -> List[str]:
     pass

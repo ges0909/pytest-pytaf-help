@@ -2,15 +2,9 @@ from typing import List
 
 from pydantic import validate_arguments
 
-__pdoc__ = {
-    "func_1": False,
-    "func_2": False,
-    "func_3": False,
-}
-
 
 @validate_arguments
-def func_1(arg1: int, arg2: str) -> List[str]:
+def _func_1(arg1: int, arg2: str) -> List[str]:
     """Summary line.
 
     Extended description of function.
@@ -32,7 +26,7 @@ def func_1(arg1: int, arg2: str) -> List[str]:
 
 
 @validate_arguments
-def func_2(arg1: int, arg2: str) -> List[str]:
+def _func_2(arg1: int, arg2: str) -> List[str]:
     """Summary line (Google style).
 
     Extended description of function.
@@ -62,7 +56,7 @@ def func_2(arg1: int, arg2: str) -> List[str]:
 
 
 @validate_arguments
-def func_3(arg1: int, arg2: str) -> List[str]:
+def _func_3(arg1: int, arg2: str) -> List[str]:
     """Summary line (Numpy style).
 
     Extended description of function.
