@@ -1,3 +1,7 @@
+import http.server
+import os
+import socketserver
+import sys
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
@@ -27,6 +31,16 @@ def write_html_file(path: Path, module: Module, **kwargs) -> None:
         file.write(module.html(show_source_code=False, **kwargs))  # external_links=True
 
 
+def serve_html(host: str = "localhost", port: int = 8000):
+    web_root = Path(__file__).parent.parent / "docs"
+    os.chdir(str(web_root))
+    handler = http.server.SimpleHTTPRequestHandler
+    httpd = socketserver.TCPServer((host, port), handler)
+    print(f"documentation served at http://{host}:{port}/index.html")
+    sys.stdout.flush()
+    httpd.serve_forever()
+
+
 def make_pdoc(module_names: List[str], output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     write_html_file(path=output_dir / "index.html", module=Module("."), modules=module_list(module_names))
@@ -42,8 +56,12 @@ def make_pdoc(module_names: List[str], output_dir: Path) -> None:
                 file_path = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1] + ".html")
             write_html_file(path=file_path, module=module)
 
-    # webbrowser.open(url="file://../docs/index.html")
+    serve_html()
 
 
 def test_pdoc():
+    make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
+
+
+if __name__ == "main":
     make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
