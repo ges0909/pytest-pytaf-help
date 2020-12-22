@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
+from docstring_parser import parse
 from pdoc import Module
 
 
@@ -31,9 +32,8 @@ def write_html_file(path: Path, module: Module, **kwargs) -> None:
         file.write(module.html(show_source_code=False, **kwargs))  # external_links=True
 
 
-def serve_html(host: str = "localhost", port: int = 8000):
-    web_root = Path(__file__).parent.parent / "docs"
-    os.chdir(str(web_root))
+def serve_pdoc(host: str = "localhost", port: int = 8000, web_dir: Path = "."):
+    os.chdir(str(web_dir))
     handler = http.server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer((host, port), handler)
     print(f"documentation served at http://{host}:{port}/index.html")
@@ -56,12 +56,40 @@ def make_pdoc(module_names: List[str], output_dir: Path) -> None:
                 file_path = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1] + ".html")
             write_html_file(path=file_path, module=module)
 
-    serve_html()
-
 
 def test_pdoc():
     make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
+    # serve_pdoc(web_dir=Path(__file__).parent.parent / "docs")
 
 
-if __name__ == "main":
-    make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
+def test_parse_alias_from_google_doc_string():
+    google = """Summary line (Google style).
+
+    Extended description of function.
+
+    Use:
+        bliblablu
+
+    Args:
+        arg1 (int): Description of arg1
+        arg2 (str): Description of arg2
+
+    Returns:
+        bool: Description of return value
+
+    Raises:
+        AttributeError: The ``Raises`` section is a list of all exceptions
+            that are relevant to the interface.
+        ValueError: If `arg2` is equal to `arg1`.
+
+    Examples:
+        Examples should be written in doctest format, and should illustrate how
+        to use the function.
+
+        >>> a=1
+        >>> b=2
+        >>> func_2(a,b)
+        True
+    """
+    doc_string = parse(google)
+    pass

@@ -5,31 +5,12 @@ from pydantic import validate_arguments
 
 @validate_arguments
 def func_1(arg1: int, arg2: str) -> List[str]:
-    """Summary line.
-
-    Extended description of function.
-
-    :param int arg1: Description of arg1.
-    :param str arg2: Description of arg2.
-    :raise: ValueError if arg1 is equal to arg2
-    :return: Description of return value
-    :rtype: bool
-
-    :example:
-
-    >>> a=1
-    >>> b=2
-    >>> func(a,b)
-    True
-    """
-    pass
-
-
-@validate_arguments
-def func_2(arg1: int, arg2: str) -> List[str]:
     """Summary line (Google style).
 
     Extended description of function.
+
+    Use:
+        bliblablu
 
     Args:
         arg1 (int): Description of arg1
@@ -56,10 +37,14 @@ def func_2(arg1: int, arg2: str) -> List[str]:
 
 
 @validate_arguments
-def func_3(arg1: int, arg2: str) -> List[str]:
+def func_2(arg1: int, arg2: str) -> List[str]:
     """Summary line (Numpy style).
 
     Extended description of function.
+
+    Use
+    ---
+    bliblablu
 
     Parameters
     ----------
@@ -98,5 +83,5 @@ def func_3(arg1: int, arg2: str) -> List[str]:
     pass
 
 
-def _func_4(arg1: int, arg2: str) -> List[str]:
+def _func_3(arg1: int, arg2: str) -> List[str]:
     pass

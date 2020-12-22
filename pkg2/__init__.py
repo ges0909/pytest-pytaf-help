@@ -1,5 +1,3 @@
 """
-File inluded here:
-
- .. include:: ../README.md
+.. include:: ../README.md
 """
