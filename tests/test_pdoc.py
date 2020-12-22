@@ -1,13 +1,18 @@
 from pathlib import Path
-from typing import Iterator, List
+from typing import Iterator, List, Tuple
 
-import pdoc
+from pdoc import Module
 
 
 # pdoc.tpl_lookup
 
 
-def recursive_modules(module: pdoc.Module) -> Iterator[pdoc.Module]:
+def module_list(module_names: List[str]) -> List[Tuple[str, str]]:
+    modules = (Module(module=name) for name in module_names)
+    return [(mod.name, mod.docstring) for mod in modules]
+
+
+def recursive_modules(module: Module) -> Iterator[Module]:
     yield module
     for sub_module in module.submodules():
         yield from recursive_modules(module=sub_module)
@@ -17,25 +22,25 @@ def recursive_modules(module: pdoc.Module) -> Iterator[pdoc.Module]:
 #     return True
 
 
-def make_pdoc(module_names: List[str], output_dir: Path) -> None:
-    root_modules_ = (pdoc.Module(module=name) for name in module_names)
-    root_modules = ((m.name, m.docstring) for m in root_modules_)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    file_name = output_dir / "index.html"
-    with open(str(file_name), "w", encoding="utf-8") as file:
-        file.write(pdoc.Module(module=".").html(show_source_code=False, modules=root_modules))
+def write_html_file(path: Path, module: Module, **kwargs) -> None:
+    with open(str(path), "w", encoding="utf-8") as file:
+        file.write(module.html(show_source_code=False, **kwargs))  # external_links=True
 
-    for module_name in module_names:
-        for module in recursive_modules(module=pdoc.Module(module=module_name)):
+
+def make_pdoc(module_names: List[str], output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    write_html_file(path=output_dir / "index.html", module=Module("."), modules=module_list(module_names))
+
+    for name in module_names:
+        for module in recursive_modules(module=Module(module=name)):
             module_parts = module.name.split(".")
             if module.is_package:
                 output_dir_ = output_dir / "/".join(module_parts)
                 output_dir_.mkdir(parents=True, exist_ok=True)
-                file_name_ = output_dir_ / "index.html"
+                file_path = output_dir_ / "index.html"
             else:
-                file_name_ = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1] + ".html")
-            with open(str(file_name_), "w", encoding="utf-8") as file:
-                file.write(module.html(show_source_code=False, external_links=True))
+                file_path = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1] + ".html")
+            write_html_file(path=file_path, module=module)
 
     # webbrowser.open(url="file://../docs/index.html")
 
