@@ -27,9 +27,13 @@ def recursive_modules(module: Module) -> Iterator[Module]:
 #     return True
 
 
-def write_html_file(path: Path, module: Module, **kwargs) -> None:
-    with open(str(path), "w", encoding="utf-8") as file:
-        file.write(module.html(show_source_code=False, **kwargs))  # external_links=True
+def write_file(path: Path, module: Module, ext: str = "html", **kwargs) -> None:
+    assert ext in ("html", "md")
+    with open(str(path) + "." + ext, "w", encoding="utf-8") as stream:
+        if ext == "html":
+            stream.write(module.html(show_source_code=False, **kwargs))  # external_links=True
+        else:
+            stream.write(module.text(**kwargs))  # external_links=True
 
 
 def serve_pdoc(host: str = "localhost", port: int = 8000, web_dir: Path = "."):
@@ -43,7 +47,7 @@ def serve_pdoc(host: str = "localhost", port: int = 8000, web_dir: Path = "."):
 
 def make_pdoc(module_names: List[str], output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    write_html_file(path=output_dir / "index.html", module=Module("."), modules=module_list(module_names))
+    write_file(path=output_dir / "index", module=Module("."), modules=module_list(module_names))
 
     for name in module_names:
         for module in recursive_modules(module=Module(module=name)):
@@ -51,15 +55,15 @@ def make_pdoc(module_names: List[str], output_dir: Path) -> None:
             if module.is_package:
                 output_dir_ = output_dir / "/".join(module_parts)
                 output_dir_.mkdir(parents=True, exist_ok=True)
-                file_path = output_dir_ / "index.html"
+                file_path = output_dir_ / "index"
             else:
-                file_path = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1] + ".html")
-            write_html_file(path=file_path, module=module)
+                file_path = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1])
+            write_file(path=file_path, module=module)
 
 
 def test_pdoc():
     make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
-    serve_pdoc(web_dir=Path(__file__).parent.parent / "docs")
+    # serve_pdoc(web_dir=Path(__file__).parent.parent / "docs")
 
 
 def test_parse_google_doc_string():
