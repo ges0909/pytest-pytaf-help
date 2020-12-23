@@ -35,7 +35,7 @@ def write_html_file(path: Path, module: Module, **kwargs) -> None:
 def serve_pdoc(host: str = "localhost", port: int = 8000, web_dir: Path = "."):
     os.chdir(str(web_dir))
     handler = http.server.SimpleHTTPRequestHandler
-    httpd = socketserver.TCPServer((host, port), handler)
+    httpd = socketserver.TCPServer(server_address=(host, port), RequestHandlerClass=handler)
     print(f"documentation served at http://{host}:{port}/index.html")
     sys.stdout.flush()
     httpd.serve_forever()
@@ -59,10 +59,10 @@ def make_pdoc(module_names: List[str], output_dir: Path) -> None:
 
 def test_pdoc():
     make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
-    # serve_pdoc(web_dir=Path(__file__).parent.parent / "docs")
+    serve_pdoc(web_dir=Path(__file__).parent.parent / "docs")
 
 
-def test_parse_alias_from_google_doc_string():
+def test_parse_google_doc_string():
     google = """Summary line (Google style).
 
     Extended description of function.
@@ -92,4 +92,5 @@ def test_parse_alias_from_google_doc_string():
         True
     """
     doc_string = parse(google)
+    long_desription = doc_string.long_description
     pass

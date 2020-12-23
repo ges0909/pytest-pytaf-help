@@ -5,12 +5,12 @@ from pydantic import validate_arguments
 
 @validate_arguments
 def func_1(arg1: int, arg2: str) -> List[str]:
-    """Summary line (Google style).
+    """Google style.
 
     Extended description of function.
 
     Use:
-        bliblablu
+        Funktion Eins
 
     Args:
         arg1 (int): Description of arg1
@@ -38,13 +38,13 @@ def func_1(arg1: int, arg2: str) -> List[str]:
 
 @validate_arguments
 def func_2(arg1: int, arg2: str) -> List[str]:
-    """Summary line (Numpy style).
+    """Numpy style.
 
     Extended description of function.
 
     Use
     ---
-    bliblablu
+    Funktion Zwei
 
     Parameters
     ----------
@@ -57,28 +57,6 @@ def func_2(arg1: int, arg2: str) -> List[str]:
     -------
     bool
         Description of return value
-
-    Raises
-    ------
-    AttributeError
-        The ``Raises`` section is a list of all exceptions
-        that are relevant to the interface.
-    ValueError
-        If `arg2` is equal to `arg1`.
-
-    See Also
-    --------
-    otherfunc: some other related function
-
-    Examples
-    --------
-    These are written in doctest format, and should illustrate how to
-    use the function.
-
-    >>> a=1
-    >>> b=2
-    >>> func_3(a,b)
-    True
     """
     pass
 

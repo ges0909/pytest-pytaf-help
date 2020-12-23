@@ -77,4 +77,20 @@ def _func_2(arg1: int, arg2: str) -> List[str]:
 
 
 def func_3(arg1: int, arg2: str) -> List[str]:
+    """Short summary.
+
+    Long description.
+
+    Parameters
+    ----------
+    arg1 : int
+        Description of arg1
+    arg2 : str
+        Description of arg2
+
+    Returns
+    -------
+    bool
+        Description of return value
+    """
     pass
