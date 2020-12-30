@@ -1,7 +1,5 @@
-import http.server
 import os
-import socketserver
-import sys
+import re
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
@@ -10,21 +8,38 @@ from pdoc import Module
 
 
 # pdoc.tpl_lookup
+# """
+# A mako.lookup.TemplateLookup object that knows how to load templates from the file system.
+# You may add additional paths by modifying the object's directories attribute.
+# """
+
+
+# def docfilter(doc: Doc) -> bool:
+#     """
+#
+#     'docfilter' is an optional predicate that controls which documentation objects are
+#     shown in the output. It is a function that takes a single argument (a documentatio
+#     object) and returns True or False. If False, that object will not be documented.
+#
+#     Args:
+#         doc:
+#
+#     Returns:
+#
+#     """
+#     return True
 
 
 def module_list(module_names: List[str]) -> List[Tuple[str, str]]:
+    """for each module returns a tuple consisting of module name and docstring of module's __init__.py"""
     modules = (Module(module=name) for name in module_names)
-    return [(mod.name, mod.docstring) for mod in modules]
+    return [(module.name, module.docstring) for module in modules]
 
 
-def recursive_modules(module: Module) -> Iterator[Module]:
+def get_modules_recursively(module: Module) -> Iterator[Module]:
     yield module
     for sub_module in module.submodules():
-        yield from recursive_modules(module=sub_module)
-
-
-# def docfilter(doc: pdoc.Doc) -> bool:
-#     return True
+        yield from get_modules_recursively(module=sub_module)
 
 
 def write_file(path: Path, module: Module, ext: str = "html", **kwargs) -> None:
@@ -36,34 +51,40 @@ def write_file(path: Path, module: Module, ext: str = "html", **kwargs) -> None:
             stream.write(module.text(**kwargs))  # external_links=True
 
 
-def serve_pdoc(host: str = "localhost", port: int = 8000, web_dir: Path = "."):
-    os.chdir(str(web_dir))
-    handler = http.server.SimpleHTTPRequestHandler
-    httpd = socketserver.TCPServer(server_address=(host, port), RequestHandlerClass=handler)
-    print(f"documentation served at http://{host}:{port}/index.html")
-    sys.stdout.flush()
-    httpd.serve_forever()
-
-
-def make_pdoc(module_names: List[str], output_dir: Path) -> None:
+def write_module_doc(module_names: List[str], output_dir: Path) -> None:
+    # create root index file
     output_dir.mkdir(parents=True, exist_ok=True)
     write_file(path=output_dir / "index", module=Module("."), modules=module_list(module_names))
-
+    #
     for name in module_names:
-        for module in recursive_modules(module=Module(module=name)):
-            module_parts = module.name.split(".")
+        for module in get_modules_recursively(module=Module(module=name)):
+            module_name_parts = module.name.split(".")
             if module.is_package:
-                output_dir_ = output_dir / "/".join(module_parts)
+                output_dir_ = output_dir / "/".join(module_name_parts)
                 output_dir_.mkdir(parents=True, exist_ok=True)
                 file_path = output_dir_ / "index"
             else:
-                file_path = output_dir / "/".join(module_parts[:-1]) / (module_parts[-1])
+                file_path = output_dir / "/".join(module_name_parts)
             write_file(path=file_path, module=module)
 
 
+def serve_module_doc(web_dir: Path):
+    import http.server
+    import socketserver
+
+    class QuietHandler(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *args, **kwargs):
+            pass
+
+    os.chdir(str(web_dir))
+    with socketserver.TCPServer(server_address=("localhost", 0), RequestHandlerClass=QuietHandler) as httpd:
+        print(f"see documentation at http://{httpd.server_address[0]}:{httpd.server_address[1]}/index.html")
+        httpd.serve_forever()
+
+
 def test_pdoc():
-    make_pdoc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
-    # serve_pdoc(web_dir=Path(__file__).parent.parent / "docs")
+    write_module_doc(module_names=["pkg", "pkg2"], output_dir=Path("../docs"))
+    serve_module_doc(web_dir=Path(__file__).parent.parent / "docs")
 
 
 def test_parse_google_doc_string():
@@ -96,5 +117,8 @@ def test_parse_google_doc_string():
         True
     """
     doc_string = parse(google)
-    long_desription = doc_string.long_description
+    # /Use:\s+(\w+[ \w]*)/
+    pattern = re.compile(r"[\n\w]*Use:\s+(\w+[ \w]*)", re.MULTILINE)
+    # match = pattern.match(doc_string.long_description)
+    match = pattern.match("\nUse: \nabc")
     pass
