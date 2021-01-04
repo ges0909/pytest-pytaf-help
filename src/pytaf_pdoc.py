@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Iterator, List, Tuple
 
 from pdoc import Module
+from rich import print
 
 
 # pdoc.tpl_lookup
@@ -77,7 +78,7 @@ def serve_doc(web_dir: Path):
     try:
         os.chdir(str(web_dir))
         with TCPServer(server_address=("localhost", 0), RequestHandlerClass=QuietHandler) as httpd:
-            print(f"see documentation at http://{httpd.server_address[0]}:{httpd.server_address[1]}/index.html")
+            print(f"visit [bold magenta]http://{httpd.server_address[0]}:{httpd.server_address[1]}/index.html[/bold magenta] for documentation")
             print(f"press ^C to abort")
             httpd.serve_forever()
     except KeyboardInterrupt:
