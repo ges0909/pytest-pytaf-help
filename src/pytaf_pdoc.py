@@ -1,9 +1,10 @@
 import os
+import webbrowser
 from pathlib import Path
+from threading import Thread
 from typing import Iterator, List, Tuple
 
 from pdoc import Module
-from rich import print
 
 
 # pdoc.tpl_lookup
@@ -75,11 +76,9 @@ def serve_doc(web_dir: Path):
         def log_message(self, *args, **kwargs):
             pass
 
-    try:
-        os.chdir(str(web_dir))
-        with TCPServer(server_address=("localhost", 0), RequestHandlerClass=QuietHandler) as httpd:
-            print(f"visit [bold magenta]http://{httpd.server_address[0]}:{httpd.server_address[1]}/index.html[/bold magenta] for documentation")
-            print(f"press ^C to abort")
-            httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    os.chdir(str(web_dir))
+    with TCPServer(server_address=("localhost", 0), RequestHandlerClass=QuietHandler) as httpd:
+        server = Thread(target=httpd.serve_forever, args=(), daemon=True)
+        server.start()
+        webbrowser.open(f"http://{httpd.server_address[0]}:{httpd.server_address[1]}/index.html")
+        _ = input("press any key to finish ...")

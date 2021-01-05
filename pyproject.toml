@@ -10,7 +10,6 @@ pydantic = "^1.7.3"
 docstring-parser = "^0.7.3"
 pdoc3 = "^0.9.2"
 pretty-errors = "^1.2.19"
-rich = "^9.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
